@@ -1,24 +1,50 @@
-const getUsers = (request, response)=> {
+const User = require('../models/user');
 
+const getUsers = (request, response)=> {
+    return User.find({}).then(users => {
+        response.status(200).send(users);
+    }).catch(error => {
+        response.status(500).send(error.message);
+    })
 }
 
 const getUser = (request, response)=> {
     const { user_id } = request.params;
-    response.status(200);
-    response.send('Hello World!');
+    return User.findById(user_id).then(user => {
+        response.status(200).send(user);
+    }).catch(error => {
+        response.status(500).send(error.message);
+    })
 }
 
 const createUser = (request, response)=> {
-    response.status(201);
-    response.send(request.body);
+    return User.create({
+        ...request.body,
+    }).then((user) => {
+        response.status(201).send(user);
+    }).catch(error => {
+        response.status(500).send(error.message);
+    });
 }
 
 const updateUser = (request, response)=> {
-
+    const { user_id } = request.params;
+    return User.findByIdAndUpdate(user_id, {
+        ...request.body,
+    }).then(user => {
+        response.status(200).send(user);
+    }).catch(error => {
+        response.status(500).send(error.message);
+    })
 }
 
 const deleteUser = (request, response)=> {
-
+    const { user_id } = request.params;
+    return User.findByIdAndDelete(user_id).then(() => {
+        response.status(204).send("Successfully deleted user");
+    }).catch(error => {
+        response.status(500).send(error.message);
+    })
 }
 
 module.exports = {
