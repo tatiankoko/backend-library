@@ -1,51 +1,59 @@
 const User = require('../models/user');
+const Book = require('../models/book');
+const { HttpError, run, ensureId, ensureBody } = require('./http');
 
-const getUsers = (request, response)=> {
-    return User.find({}).then(users => {
-        response.status(200).send(users);
-    }).catch(error => {
-        response.status(500).send(error.message);
-    })
-}
+const getUsers = (request, response) => run(response, async () => {
+    const users = await User.find({});
+    response.status(200).send(users);
+});
 
-const getUser = (request, response)=> {
+const getUser = (request, response) => run(response, async () => {
     const { user_id } = request.params;
-    return User.findById(user_id).then(user => {
-        response.status(200).send(user);
-    }).catch(error => {
-        response.status(500).send(error.message);
-    })
-}
+    ensureId(user_id, 'User');
+    const user = await User.findById(user_id);
+    if (!user) {
+        throw new HttpError(404, 'User not found');
+    }
+    response.status(200).send(user);
+});
 
-const createUser = (request, response)=> {
-    return User.create({
-        ...request.body,
-    }).then((user) => {
-        response.status(201).send(user);
-    }).catch(error => {
-        response.status(500).send(error.message);
+const createUser = (request, response) => run(response, async () => {
+    ensureBody(request.body);
+    if (request.body.name === undefined || request.body.name === null || request.body.name === '') {
+        throw new HttpError(400, 'name is required');
+    }
+    const user = await User.create(request.body);
+    response.status(201).send(user);
+});
+
+const updateUser = (request, response) => run(response, async () => {
+    const { user_id } = request.params;
+    ensureId(user_id, 'User');
+    ensureBody(request.body);
+    const user = await User.findByIdAndUpdate(user_id, request.body, {
+        new: true,
+        runValidators: true
     });
-}
+    if (!user) {
+        throw new HttpError(404, 'User not found');
+    }
+    response.status(200).send(user);
+});
 
-const updateUser = (request, response)=> {
+const deleteUser = (request, response) => run(response, async () => {
     const { user_id } = request.params;
-    return User.findByIdAndUpdate(user_id, {
-        ...request.body,
-    }).then(user => {
-        response.status(200).send(user);
-    }).catch(error => {
-        response.status(500).send(error.message);
-    })
-}
-
-const deleteUser = (request, response)=> {
-    const { user_id } = request.params;
-    return User.findByIdAndDelete(user_id).then(() => {
-        response.status(204).send("Successfully deleted user");
-    }).catch(error => {
-        response.status(500).send(error.message);
-    })
-}
+    ensureId(user_id, 'User');
+    const user = await User.findById(user_id);
+    if (!user) {
+        throw new HttpError(404, 'User not found');
+    }
+    const borrowedBook = await Book.exists({ borrowedBy: user_id });
+    if (borrowedBook) {
+        throw new HttpError(409, 'A user with borrowed books cannot be deleted');
+    }
+    await User.findByIdAndDelete(user_id);
+    response.status(204).end();
+});
 
 module.exports = {
     getUsers,
@@ -53,4 +61,4 @@ module.exports = {
     createUser,
     updateUser,
     deleteUser
-}
+};

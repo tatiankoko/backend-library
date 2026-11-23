@@ -17,7 +17,7 @@ const bookSchema = new mongoose.Schema({
     },
     borrowedBy: {
         type: String,
-        required: false,
+        default: null,
     }
 });
 
