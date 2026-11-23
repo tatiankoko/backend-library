@@ -5,11 +5,14 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/backend-library', err => {
-    if (err) throw err;
+const uri = 'mongodb://localhost:27017/mydb';
 
-    console.log('MongoDB Connected!');
-});
+mongoose.connect(uri)
+    .then(() => console.log('Успешное подключение к MongoDB'))
+    .catch((error) => {
+        console.error('Ошибка подключения: ', error);
+        process.exit(1);
+    });
 
 const app = express();
 
