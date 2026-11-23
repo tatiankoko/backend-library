@@ -15,6 +15,10 @@ const bookSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    borrowedBy: {
+        type: String,
+        required: false,
+    }
 });
 
 module.exports = mongoose.model('Book', bookSchema);

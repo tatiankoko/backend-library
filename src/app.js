@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 const app = express();
 
 const {
-    PORT = 3000,
+    PORT = 3005,
     API_URL= "http://127.0.0.1",
     MONGODB_URI= "mongodb://localhost:27017/library_mongodb"
 } = process.env;
