@@ -18,6 +18,6 @@ router.patch('/users/:user_id', updateUser)
 router.delete('/users/:user_id', deleteUser)
 router.get('/users/:user_id/books', getBorrowed);
 router.post('/users/:user_id/books', borrowBook);
-router.post('/users/:user_id/books/return', returnBook);
+router.delete('/users/:user_id/books/:book_id', returnBook);
 
 module.exports = router;

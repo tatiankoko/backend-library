@@ -73,17 +73,17 @@ const borrowBook = (request, response) => run(response, async () => {
     const { user_id } = request.params;
     ensureId(user_id, 'User');
     ensureBody(request.body);
-    if (!request.body.bookId) {
-        throw new HttpError(400, 'bookId is required');
+    if (!request.body.book_id) {
+        throw new HttpError(400, 'book_id is required');
     }
-    ensureId(request.body.bookId, 'Book');
+    ensureId(request.body.book_id, 'Book');
 
     const user = await User.findById(user_id);
     if (!user) {
         throw new HttpError(404, 'User not found');
     }
     const book = await Book.findOneAndUpdate({
-        _id: request.body.bookId,
+        _id: request.body.book_id,
         $or: [{ borrowedBy: null }, { borrowedBy: { $exists: false } }]
     }, {
         $set: { borrowedBy: user_id }
@@ -91,7 +91,7 @@ const borrowBook = (request, response) => run(response, async () => {
         new: true
     });
     if (!book) {
-        const existingBook = await Book.findById(request.body.bookId);
+        const existingBook = await Book.findById(request.body.book_id);
         if (!existingBook) {
             throw new HttpError(404, 'Book not found');
         }
@@ -101,20 +101,16 @@ const borrowBook = (request, response) => run(response, async () => {
 });
 
 const returnBook = (request, response) => run(response, async () => {
-    const { user_id } = request.params;
+    const { user_id, book_id } = request.params;
     ensureId(user_id, 'User');
-    ensureBody(request.body);
-    if (!request.body.bookId) {
-        throw new HttpError(400, 'bookId is required');
-    }
-    ensureId(request.body.bookId, 'Book');
+    ensureId(book_id, 'Book');
 
     const user = await User.findById(user_id);
     if (!user) {
         throw new HttpError(404, 'User not found');
     }
     const book = await Book.findOneAndUpdate({
-        _id: request.body.bookId,
+        _id: book_id,
         borrowedBy: user_id
     }, {
         $set: { borrowedBy: null }
@@ -122,13 +118,13 @@ const returnBook = (request, response) => run(response, async () => {
         new: true
     });
     if (!book) {
-        const existingBook = await Book.findById(request.body.bookId);
+        const existingBook = await Book.findById(book_id);
         if (!existingBook) {
             throw new HttpError(404, 'Book not found');
         }
         throw new HttpError(409, 'User has not borrowed this book');
     }
-    response.status(201).send(book);
+    response.status(204).end();
 });
 
 module.exports = {
