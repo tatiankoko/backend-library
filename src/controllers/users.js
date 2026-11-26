@@ -51,8 +51,11 @@ const deleteUser = (request, response) => run(response, async () => {
     if (borrowedBook) {
         throw new HttpError(409, 'A user with borrowed books cannot be deleted');
     }
-    await User.findByIdAndDelete(user_id);
-    response.status(204).end();
+    const deletedUser = await User.findByIdAndDelete(user_id);
+    if (!deletedUser) {
+        throw new HttpError(404, 'User not found');
+    }
+    response.status(200).send(deletedUser);
 });
 
 module.exports = {
