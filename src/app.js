@@ -21,6 +21,11 @@ mongoose.connect(MONGODB_URI)
         process.exit(1);
     });
 
+app.use((request, response, next) => {
+    console.log(`${request.method} ${request.originalUrl}`);
+    next();
+});
+
 app.get('/', (req, res) => {
     res.status(200);
     res.send('Hello World!');
