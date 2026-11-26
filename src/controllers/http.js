@@ -12,7 +12,7 @@ const run = (response, operation) => Promise.resolve()
     .catch(error => {
         const status = error.status
             || (error.name === 'ValidationError' || error.name === 'CastError' ? 400 : 500);
-        response.status(status).send(error.message);
+        response.status(status).json({ error: error.message });
     });
 
 const ensureId = (id, resource) => {

@@ -31,4 +31,8 @@ app.use(bodyParser.json());
 app.use(userRouter);
 app.use(bookRouter);
 
+app.use((request, response) => {
+    response.status(404).json({ error: 'Route not found' });
+});
+
 app.listen(PORT, ()=> console.log(`Server started on ${API_URL}:${PORT}`));
